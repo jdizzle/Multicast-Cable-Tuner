@@ -1,0 +1,6 @@
+AC_INIT(igmp_server, 0.1)
+AC_CONFIG_AUX_DIR(ac.d)
+AM_INIT_AUTOMAKE(-Wall -Werror)
+AC_PROG_CC
+AC_CONFIG_FILES(src/Makefile)
+AC_OUTPUT
