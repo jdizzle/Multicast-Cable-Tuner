@@ -14,7 +14,7 @@
 void usage(char* arg0) {
     printf("Usage: %s [options]\n", arg0);
     printf(" -v dev : set the tuner device (default /dev/video0)\n");
-    printf(" -a dev : set the audie device (default /dev/dsp1)\n");
+    printf(" -a dev : set the audio device (default /dev/dsp1)\n");
     printf(" -b intf: set interface to listen for multicast traffic on (default eth0)\n"); 
     printf(" -m addr: set the base multicast address (address of channel 0) (default 224.0.100.0)\n");
     printf(" -c cmd : set the path to the vlc command (default 'vlc')\n");
