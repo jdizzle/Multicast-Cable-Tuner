@@ -81,7 +81,6 @@ int main(int argc, char** argv) {
 			 
 
     r = setuid(-2); //drop privileges to "nobody"
-    //    r = setuid(501); //XXX hardcode for now
     if(r) {
 	perror("setuid");
 	return 1;
