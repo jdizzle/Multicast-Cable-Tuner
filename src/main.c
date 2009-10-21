@@ -15,7 +15,7 @@ void usage(char* arg0) {
     printf("Usage: %s [options]\n", arg0);
     printf(" -v dev : set the tuner device (default /dev/video0)\n");
     printf(" -a dev : set the audio device (default /dev/dsp1)\n");
-    printf(" -b intf: set interface to listen for multicast traffic on (default eth0)\n"); 
+    printf(" -i intf: set interface to listen for multicast traffic on (default eth0)\n"); 
     printf(" -m addr: set the base multicast address (address of channel 0) (default 224.0.100.0)\n");
     printf(" -c cmd : set the path to the vlc command (default 'vlc')\n");
     printf(" -h     : print this message\n");
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
     char* cmd  = "vlc";
     struct in_addr mbase = {htonl(0xe0006400)}; //default multicast base is 224.0.100.0
 
-    while((c = getopt(argc, argv, "v:a:b:m:c:h")) != -1)
+    while((c = getopt(argc, argv, "v:a:i:m:c:h")) != -1)
     {
 	switch(c) {
 	    case 'v':
@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 	    case 'a':
 		adev = optarg;
 		break;
-	    case 'b':
+	    case 'i':
 		intf = optarg;
 		break;
 	    case 'm':

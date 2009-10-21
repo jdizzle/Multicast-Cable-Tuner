@@ -18,14 +18,13 @@
 #include "common.h"
 #include "igmp_server.h"
 
-#define IGMP_ROUTER_GROUP "224.0.0.2"
-#define VIF_INDEX 1	//only need one index as I only have one interface
+#define VIF_INDEX 1	//only need one index as I only have one interface.  This number is arbitrary
 
 static int igmp_socket = 0;
 static int multicast_version = 1;
 
 #define IGMP_DEBUG(l, m, args...) do { if(debug_level >= l) printf("IGMP %s:%d - " m "\n", __FILE__, __LINE__, ##args); }while(0)
-static int debug_level = 0;
+static int debug_level = 1;
 
 
 
@@ -46,7 +45,7 @@ int igmp_server_init(char* intf) {
     c = getenv("IGMP_DEBUG");
     if(c)
 	debug_level = atoi(c);
-    IGMP_DEBUG(1, "debug level %d", debug_level);
+    IGMP_DEBUG(3, "debug level %d", debug_level);
 
     igmp_socket = socket(AF_INET, SOCK_RAW, IPPROTO_IGMP);
     if(igmp_socket <= 0) {
@@ -54,7 +53,7 @@ int igmp_server_init(char* intf) {
 	return 1;
     }
     
-    mreq.imr_multiaddr.s_addr = inet_addr(IGMP_ROUTER_GROUP);
+    mreq.imr_multiaddr.s_addr = IGMP_ALL_ROUTER;
     mreq.imr_interface.s_addr = INADDR_ANY;
     r = setsockopt(igmp_socket, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
     if(r) {

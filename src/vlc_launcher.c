@@ -21,7 +21,7 @@ static pid_t	vlc_pid	= 0; //current vlc pid
 
 
 #define VLC_DEBUG(l, m, args...) do {if(debug_level >= l) printf("VLC %s:%d - " m "\n", __FILE__, __LINE__, ##args); }while(0)
-static int debug_level = 0;
+static int debug_level = 1;
 
 static const char* convert_vcodec(enum vcodec v) {
     switch(v) {
@@ -106,7 +106,7 @@ int vlc_launch(enum vcodec v, enum acodec a, struct in_addr dst, __u16 port) {
     pid = fork();
     if(pid == 0) {
 	if(debug_level < 5) {
-	    VLC_DEBUG(1, "closing standard out and standard error");
+	    VLC_DEBUG(2, "closing standard out and standard error");
 	    fclose(stdout);
 	    fclose(stderr);
 	}
@@ -126,7 +126,7 @@ int vlc_init(char* command, char* vdev, char* adev) {
     char* c = getenv("VLC_DEBUG");
     if(c)
 	debug_level = atoi(c);
-    VLC_DEBUG(1, "set debug level to %d", debug_level);
+    VLC_DEBUG(2, "set debug level to %d", debug_level);
 
     VLC_DEBUG(4, "using command %s, vdev %s, adev %s", command, vdev, adev);
     vlc_command = strdup(command);
