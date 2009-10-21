@@ -1,0 +1,6 @@
+This is the source to a daemon process.  It registers as a multicast
+router.  Subsequent multicast joins (within the channel range) will
+start a multicast broadcast to that address using VLC
+(http://videolan.org/vlc).
+
+This is still very experimental development.
