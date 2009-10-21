@@ -3,7 +3,8 @@
 
 
 enum vcodec {
-    MP4V
+    MP4V,
+    MP2V
 };
 
 
@@ -12,6 +13,7 @@ enum acodec {
 };
 
 
-void vlc_init();
 
+int vlc_kill();
 int vlc_launch(enum vcodec, enum acodec, struct in_addr, __u16);
+int vlc_init(char*, char* , char*);

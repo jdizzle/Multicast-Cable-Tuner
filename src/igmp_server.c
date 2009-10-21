@@ -2,13 +2,18 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
-#include <linux/mroute.h>
-
 #include <netinet/ip.h>
+
+
+#include <linux/mroute.h>
 #include <linux/igmp.h>
+#include <linux/if.h>
+
+
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "common.h"
 #include "igmp_server.h"
@@ -30,24 +35,25 @@ static int debug_level = 0;
 /**
  *  Will return 0 on success, error on anything else
  */
-int igmp_server_init(char* address) {
+int igmp_server_init(char* intf) {
+    struct in_addr addr;
     struct ip_mreq mreq;
+    struct ifreq ifr;
     struct vifctl vif;
+    char *c;
     int r;
 
-    {
-	char* c = getenv("IGMP_DEBUG");
-	if(c)
-	    debug_level = atoi(c);
-	IGMP_DEBUG(1, "debug level %d", debug_level);
-    }
+    c = getenv("IGMP_DEBUG");
+    if(c)
+	debug_level = atoi(c);
+    IGMP_DEBUG(1, "debug level %d", debug_level);
 
     igmp_socket = socket(AF_INET, SOCK_RAW, IPPROTO_IGMP);
     if(igmp_socket <= 0) {
 	IGMP_DEBUG(1, "failed to create socket");
 	return 1;
     }
-
+    
     mreq.imr_multiaddr.s_addr = inet_addr(IGMP_ROUTER_GROUP);
     mreq.imr_interface.s_addr = INADDR_ANY;
     r = setsockopt(igmp_socket, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
@@ -63,15 +69,26 @@ int igmp_server_init(char* address) {
 	return r;
     }
 
+    IGMP_DEBUG(3, "quering address for interface %s", intf);
+    strncpy(ifr.ifr_ifrn.ifrn_name, intf, IFNAMSIZ);
+    r = ioctl(igmp_socket, SIOCGIFADDR, &ifr);
+    if(r == -1) {
+	IGMP_DEBUG(1, "failed to ioctl for address");
+	return 1;
+    }
+
+    addr = ((struct sockaddr_in*)&(ifr.ifr_ifru.ifru_addr))->sin_addr;
+    IGMP_DEBUG(3, "got address %s", inet_ntoa(addr));
+    
     vif.vifc_vifi = VIF_INDEX;
     vif.vifc_flags = 0;
     vif.vifc_threshold = 1;
     vif.vifc_rate_limit = 0;
-    vif.vifc_lcl_addr.s_addr = inet_addr(address);
+    vif.vifc_lcl_addr = addr;
     vif.vifc_rmt_addr.s_addr = 0;
     r = setsockopt(igmp_socket, IPPROTO_IP, MRT_ADD_VIF, &vif, sizeof(vif));
     if(r) {
-	IGMP_DEBUG(1, "failed to add the virtual address %s (%s)", address, inet_ntoa(inet_addr(address)));
+	IGMP_DEBUG(1, "failed to add the virtual address %s", inet_ntoa(addr));
 	return r;
     }
 
@@ -146,3 +163,12 @@ int igmp_server_recv() {
 
 }
 	
+int igmp_server_run() {
+    int r;
+    do {
+	r = igmp_server_recv();
+    } while(!r);
+
+    IGMP_DEBUG(1, "server receive failed");
+    return r;
+}
